@@ -21,7 +21,7 @@ jobs:
         run: |
           pip install --upgrade pip
           pip install -r requirements.txt
-          pip install fpdf  # Ensure fpdf is installed
+          pip install fpdf selenium webdriver-manager  # Ensure required packages are installed
 
       - name: Run Scraper
         run: python main.py

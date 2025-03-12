@@ -1,11 +1,11 @@
 def scrape_gym9():
-    """Returns a placeholder entry indicating Stray Dog Strength does not make a squat stand."""
-    
+    """Scraper for Stray Dog - No Squat Stand Available"""
     return {
-        "name": "Stray Dog Squat Stand",
-        "price": "Not Available - Stray Dog does not make a squat stand",
-        "country": "USA",
+        "name": "No Squat Stand Available",
         "manufacturer": "Stray Dog Strength",
-        "image_url": "NA",  
-        "web_page": "NA"  
+        "price": "NA",
+        "country": "USA",
+        "image_url": "https://t3.ftcdn.net/jpg/01/12/43/90/360_F_112439022_Sft6cXK9GLnzWjjIkVMj2Lt34RcKUpxm.jpg",
+        "web_page": "NA"
     }
+

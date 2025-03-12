@@ -24,9 +24,10 @@ if "Product Page" in df.columns:
 
 # Convert Image URLs into Displayable Images, with a Sad Face for Stray Dog
 if "Image URL" in df.columns:
-    df["Image"] = df.apply(lambda row: f'<img src="{row["Image URL"]}" width="100">' 
-                         if row["Image URL"] != "NA" 
-                         else '<span style="font-size:30px;">😢 No Squat Stand Available</span>', axis=1)
+    df["Image"] = df["Image URL"].apply(lambda x: 
+    f'<img src="{x}" width="100">' if x != "NA" else '<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Sad_Face_Emoji.png/240px-Sad_Face_Emoji.png" width="50">'
+)
+
 
 
 # Search and Filters

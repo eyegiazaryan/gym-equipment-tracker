@@ -24,7 +24,7 @@ if "Product Page" in df.columns:
 
 # Convert Image URLs into Displayable Images, with a Sad Face for Stray Dog
 if "Image URL" in df.columns:
-df["Image"] = df.apply(lambda row: f'<img src="{row["Image URL"]}" width="100">' 
+    df["Image"] = df.apply(lambda row: f'<img src="{row["Image URL"]}" width="100">' 
                          if row["Image URL"] != "NA" 
                          else '<span style="font-size:30px;">😢 No Squat Stand Available</span>', axis=1)
 

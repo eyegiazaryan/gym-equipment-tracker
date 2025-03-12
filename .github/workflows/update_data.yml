@@ -18,7 +18,10 @@ jobs:
           python-version: '3.12'
 
       - name: Install dependencies
-        run: pip install -r requirements.txt
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install fpdf  # Ensure fpdf is installed
 
       - name: Run Scraper
         run: python main.py
@@ -27,6 +30,6 @@ jobs:
         run: |
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
-          git add gym_data.xlsx gym_report.pdf
-          git commit -m "Auto-update gym prices"
-          git push
+          git add gym_data.xlsx gym_report.pdf || echo "No changes to commit"
+          git commit -m "Auto-update gym prices" || echo "No changes detected"
+          git push || echo "No updates pushed"

@@ -4,3 +4,4 @@ streamlit
 fpdf
 selenium
 webdriver-manager
+beautifulsoup4

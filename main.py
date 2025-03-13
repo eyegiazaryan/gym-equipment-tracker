@@ -16,6 +16,48 @@ from scrapers.scraper8 import scrape_gym8
 from scrapers.scraper9 import scrape_gym9
 from scrapers.scraper10 import scrape_gym10
 
+def main():
+    print("🚀 Starting the Gym Scraper...\n")
+
+    # **List of All Scrapers**
+    scrapers = {
+        "4x4 Squat Racks": [scrape_gym1, scrape_gym2, scrape_gym3, scrape_gym4, scrape_gym5],
+        "Squat Stands": [scrape_gym6, scrape_gym7, scrape_gym8, scrape_gym9, scrape_gym10]
+    }
+
+    # **Initialize Lists for Data Storage**
+    squat_racks = []
+    squat_stands = []
+
+    # **Run Scrapers and Collect Data**
+    for category, scraper_list in scrapers.items():
+        print(f"📌 Scraping {category}...\n")
+        for scraper in scraper_list:
+            try:
+                data = scraper()
+                print(f"✅ Successfully Scraped: {data['name']} - {data['price']}")
+                
+                # Append Data to the Correct List
+                if category == "4x4 Squat Racks":
+                    squat_racks.append(data)
+                else:
+                    squat_stands.append(data)
+                
+            except Exception as e:
+                print(f"❌ Error scraping {scraper.__name__}: {str(e)}")
+                continue
+
+    # **Save Data to Excel**
+    print("\n📊 Saving Data to Excel...")
+    save_to_excel(squat_racks, "4x4 Squat Racks", squat_stands, "Squat Stands", "gym_data.xlsx")
+
+    # **Generate PDF Report**
+    print("\n📄 Generating PDF Report...")
+    generate_pdf()
+
+    print("\n✅ All Tasks Completed Successfully!")
+
+# **Supporting Functions**
 def format_excel(filename="gym_data.xlsx"):
     """Format the Excel file for better readability and fix hyperlinks."""
     wb = load_workbook(filename)
@@ -134,32 +176,10 @@ def generate_pdf(excel_file="gym_data.xlsx", pdf_file="gym_report.pdf"):
             pdf.cell(0, 8, safe_text(f"🏭 Manufacturer: {row['Manufacturer']}"), ln=True)
             pdf.cell(0, 8, safe_text(f"📍 Country: {row['Country']}"), ln=True)
 
-            product_page = row["Product Page"]
-            if product_page != "NA" and isinstance(product_page, str):
-                pdf.set_text_color(0, 0, 255)
-                pdf.cell(0, 8, safe_text(f"🔗 Product Link: {product_page}"), ln=True, link=product_page)
-                pdf.set_text_color(0, 0, 0)
-
             pdf.ln(10)
 
     pdf.output(pdf_file, "F")
     print(f"✅ PDF Report Generated: {pdf_file}")
-
-def main():
-    print("Starting the Gym Scraper...\n")
-
-    squat_racks = [
-        scrape_gym1(), scrape_gym2(), scrape_gym3(), scrape_gym4(), scrape_gym5()
-    ]
-    squat_stands = [
-        scrape_gym6(), scrape_gym7(), scrape_gym8(), scrape_gym9(), scrape_gym10()
-    ]
-
-    # Save Data to Excel
-    save_to_excel(squat_racks, "4x4 Squat Racks", squat_stands, "Squat Stands", "gym_data.xlsx")
-
-    # Generate PDF after scraping
-    generate_pdf()
 
 if __name__ == "__main__":
     main()

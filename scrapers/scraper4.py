@@ -18,21 +18,21 @@ def scrape_gym4():
     service = Service(ChromeDriverManager().install())
     driver = webdriver.Chrome(service=service, options=chrome_options)
 
+    # Extract price using the correct XPath
     try:
-        driver.get(url)
-        time.sleep(5)  # Allow JavaScript to load
+        price_element = WebDriverWait(driver, 15).until(
+            EC.presence_of_element_located((By.XPATH, "//*[@id='price-template--17914059948282__main']/div/div/div[1]/span[2]"))
+        )
+        price = price_element.text.strip()
 
-        # Extract price using the correct XPath
-        try:
-            price_element = WebDriverWait(driver, 15).until(
-                EC.presence_of_element_located((By.XPATH, "//*[@id='price-template--17914059948282__main']/div/div/div[1]/span[2]"))
-            )
-            price = price_element.text.strip()
-        except:
-            print("❌ Price not found")
-            price = "Price not available"
+        # Remove the 'USD' part from the price if it exists
+        price = price.replace("USD", "").strip()
+    except:
+        print("❌ Price not found")
+        price = "Price not available"
 
-        return {
+
+    return {
             "name": "Alpha Half Rack",
             "price": price,
             "country": "USA",

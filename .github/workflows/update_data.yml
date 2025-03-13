@@ -3,7 +3,7 @@ name: Update Gym Data
 on:
   schedule:
     - cron: '0 6 * * *'  # Runs daily at 6 AM UTC
-  workflow_dispatch:  # Allows manual triggering
+  workflow_dispatch:  # Allows manual triggering from GitHub Actions
 
 jobs:
   update-data:
@@ -13,7 +13,7 @@ jobs:
       - name: 📥 Checkout repository
         uses: actions/checkout@v3
         with:
-          persist-credentials: false  # Prevents permission issues
+          persist-credentials: false  # Prevents authentication issues
 
       - name: 🐍 Set up Python
         uses: actions/setup-python@v3

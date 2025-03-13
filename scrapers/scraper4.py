@@ -29,8 +29,9 @@ def scrape_gym4():
             )
             price = price_element.text.strip()
 
-            # Remove 'USD' and '$' from the price if it exists
+            # Remove 'USD' and '$' from the price if it exists and then re-add the dollar sign
             price = price.replace("USD", "").replace("$", "").strip()
+            price = f"${price}"  # Add the dollar sign back
 
         except Exception as e:
             print(f"❌ Price not found: {e}")

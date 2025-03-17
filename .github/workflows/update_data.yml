@@ -16,9 +16,9 @@ jobs:
           persist-credentials: false  # Prevents authentication issues
 
       - name: 🐍 Set up Python
-        uses: actions/setup-python@v3
+        uses: actions/setup-python@v4
         with:
-          python-version: '3.12'
+          python-version: '3.11'  # More stable than 3.12 for dependencies
 
       - name: 📦 Install dependencies
         run: |
@@ -27,7 +27,8 @@ jobs:
           pip install fpdf selenium webdriver-manager beautifulsoup4 openpyxl pandas numpy
 
       - name: 🚀 Run Scraper
-        run: python main.py
+        run: |
+          python main.py || echo "⚠️ Scraper failed! Check logs for errors."
 
       - name: 🔄 Commit and Push Updated Data
         env:
@@ -42,4 +43,4 @@ jobs:
           git diff --staged --quiet || git commit -m "🔄 Auto-update gym prices"
           
           # Push using GitHub Token (Fixes 403 error)
-          git push https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git main
+          git push "https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git" main

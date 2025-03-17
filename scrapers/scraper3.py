@@ -25,7 +25,7 @@ def scrape_gym3():
         logging.info("Opening website: %s", url)
         driver.get(url)
 
-        # Extract price using the correct XPath
+        # Extract price
         try:
             price_element = WebDriverWait(driver, 15).until(
                 EC.presence_of_element_located((By.XPATH, "//*[@id='main-content']/div[2]/div[2]/div/div[3]/div/div[2]/div[1]/div[1]/div/div[1]"))
@@ -36,12 +36,15 @@ def scrape_gym3():
             logging.error("❌ Price not found")
             price = "Price not available"
 
+        # Use the correct image URL (manually set)
+        image_url = "https://garagegymlab.com/wp-content/uploads/Rogue-RM-3-Monster-Rack-2.0-Blue.jpg"
+
         return {
             "name": "Rogue RM-3 Monster Rack 2.0",
             "price": price,
             "country": "USA",
             "manufacturer": "Rogue Fitness",
-            "image_url": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD...",
+            "image_url": image_url,
             "web_page": url
         }
 

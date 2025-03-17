@@ -11,7 +11,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
 def scrape_gym7():
-    url = "https://titan.fitness/products/x-3-series-tall-squat-stand"
+    url = "https://titan.fitness/products/titan-series-power-rack-90-36?variant=47930285916437"
 
     chrome_options = Options()
     chrome_options.add_argument("--headless")  
@@ -25,22 +25,33 @@ def scrape_gym7():
         logging.info("Opening website: %s", url)
         driver.get(url)
 
+        price = "Price not available"
+        sale_status = "regular"
+
         try:
-            # Extract regular price (Updated XPath)
-            price_element = WebDriverWait(driver, 15).until(
+            # Try to get the regular price
+            price_element = WebDriverWait(driver, 10).until(
                 EC.presence_of_element_located((By.XPATH, "//*[@id='c-priceMain-template--22333888987413__main']/div/div/div[1]/span[2]"))
             )
             price = price_element.text.strip()
-            sale_status = "regular"
             logging.info("✅ Regular Price found: %s", price)
+        
         except:
-            # If price is not found, label it as "sale"
-            logging.warning("❌ Regular price not found, item might be on sale.")
-            price = "Price not available"
-            sale_status = "sale"
+            logging.warning("❌ Regular price not found, checking for sale price...")
+
+            # Try to get the sale price
+            try:
+                sale_price_element = WebDriverWait(driver, 10).until(
+                    EC.presence_of_element_located((By.XPATH, "//*[@id='c-priceMain-template--22333888987413__main']/div/div/div[2]/span[4]"))
+                )
+                price = sale_price_element.text.strip()
+                sale_status = "sale"
+                logging.info("✅ Sale Price found: %s", price)
+            except:
+                logging.error("❌ Sale price not found either.")
 
         return {
-            "name": "X-3 Series Tall Squat Stand",
+            "name": "Titan Series Power Rack 90\" x 36\"",
             "price": price,
             "status": sale_status,
             "country": "China",

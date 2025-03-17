@@ -1,3 +1,4 @@
+import logging
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
@@ -5,7 +6,9 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager
-import time
+
+# Configure logging
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
 def scrape_gym3():
     url = "https://www.roguefitness.com/rm-3-bolt-together-monster-rack-2-0"
@@ -19,8 +22,8 @@ def scrape_gym3():
     driver = webdriver.Chrome(service=service, options=chrome_options)
 
     try:
+        logging.info("Opening website: %s", url)
         driver.get(url)
-        time.sleep(5)  # Allow JavaScript to load
 
         # Extract price using the correct XPath
         try:
@@ -28,8 +31,9 @@ def scrape_gym3():
                 EC.presence_of_element_located((By.XPATH, "//*[@id='main-content']/div[2]/div[2]/div/div[3]/div/div[2]/div[1]/div[1]/div/div[1]"))
             )
             price = price_element.text.strip()
+            logging.info("✅ Price found: %s", price)
         except:
-            print("❌ Price not found")
+            logging.error("❌ Price not found")
             price = "Price not available"
 
         return {
@@ -37,7 +41,7 @@ def scrape_gym3():
             "price": price,
             "country": "USA",
             "manufacturer": "Rogue Fitness",
-            "image_url": "https://tokofitness.id/wp-content/uploads/2019/05/download-500x671.png",
+            "image_url": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD...",
             "web_page": url
         }
 
@@ -47,4 +51,4 @@ def scrape_gym3():
 # Run the scraper
 if __name__ == "__main__":
     product_data = scrape_gym3()
-    print(product_data)
+    logging.info("Scraped Data: %s", product_data)

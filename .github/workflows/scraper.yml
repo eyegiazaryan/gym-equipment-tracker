@@ -1,0 +1,46 @@
+name: Update Gym Data
+
+on:
+  schedule:
+    - cron: '0 6 * * *'  # Runs daily at 6 AM UTC
+  workflow_dispatch:  # Allows manual triggering from GitHub Actions
+
+jobs:
+  update-data:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v3
+        with:
+          persist-credentials: false  # Prevents authentication issues
+
+      - name: 🐍 Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'  # More stable than 3.12 for dependencies
+
+      - name: 📦 Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install fpdf selenium webdriver-manager beautifulsoup4 openpyxl pandas numpy
+
+      - name: 🚀 Run Scraper
+        run: |
+          python main.py || echo "⚠️ Scraper failed! Check logs for errors."
+
+      - name: 🔄 Commit and Push Updated Data
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "actions@github.com"
+
+          git add gym_data.xlsx gym_report.pdf
+
+          # Commit only if there are changes
+          git diff --staged --quiet || git commit -m "🔄 Auto-update gym prices"
+          
+          # Fixed Git push command (remove incorrect quotes)
+          git push https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git main

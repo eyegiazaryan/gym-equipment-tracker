@@ -32,20 +32,20 @@ df = data_sheets[page].copy()
 # Convert Product Page URLs into Clickable Links
 if "Product Page" in df.columns:
     df["Product Page"] = df["Product Page"].apply(lambda x: 
-        f'<a href="{x}" target="_blank">🔗 Click Here</a>' if pd.notna(x) and x != "NA" else "NA"
+        f'<a href="{x}" target="_blank">🔗 Click Here</a>' if pd.notna(x) and x != "NA" and x.startswith("http") else "NA"
     )
 
 # Convert Image URLs into Displayable Images (Sad face for missing images)
 if "Image URL" in df.columns:
     df["Image"] = df["Image URL"].apply(lambda x: 
-        f'<img src="{x}" width="100">' if pd.notna(x) and x != "NA" 
-        else '<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Sad_Face_Emoji.png/240px-Sad_Face_Emoji.png" width="50">'
+        f'<img src="{x}" width="100">' if pd.notna(x) and x != "NA" and x.startswith("http")  
+        else '<img src="https://upload.wikimedia.org/wikipedia/commons/6/6f/Sad_Face_Emoji.png" width="50">'
     )
 
 # Search Feature
 search_term = st.text_input("🔍 Search Equipment", "").strip()
 if search_term:
-    df = df[df.apply(lambda row: row.astype(str).str.contains(search_term, case=False).any(), axis=1)]
+    df = df[df.apply(lambda row: row.astype(str).str.contains(search_term, case=False, na=False).any(), axis=1)]
 
 # Columns to Display
 display_columns = ["Image", "Product Name", "Manufacturer", "Price", "Country", "Product Page"]

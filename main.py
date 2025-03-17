@@ -35,14 +35,20 @@ def main():
         for scraper in scraper_list:
             try:
                 data = scraper()
-                print(f"✅ Successfully Scraped: {data['name']} - {data['price']}")
                 
+                # Ensure valid data is returned
+                if not data or not isinstance(data, dict):
+                    print(f"⚠️ {scraper.__name__} returned invalid data. Skipping.")
+                    continue
+                
+                print(f"✅ Successfully Scraped: {data.get('name', 'Unknown')} - {data.get('price', 'N/A')}")
+
                 # Append Data to the Correct List
                 if category == "4x4 Squat Racks":
                     squat_racks.append(data)
                 else:
                     squat_stands.append(data)
-                
+
             except Exception as e:
                 print(f"❌ Error scraping {scraper.__name__}: {str(e)}")
                 continue
@@ -77,11 +83,11 @@ def format_excel(filename="gym_data.xlsx"):
 
         # Fix hyperlinks
         for row in ws.iter_rows(min_row=2, max_row=ws.max_row):
-            if row[5].value and row[5].value != "NA":  # Product Page
+            if row[5].value and row[5].value.startswith("http"):
                 row[5].hyperlink = row[5].value
                 row[5].font = Font(color="0000FF", underline="single")
 
-            if row[4].value and row[4].value != "NA":  # Image URL
+            if row[4].value and row[4].value.startswith("http"):
                 row[4].hyperlink = row[4].value
                 row[4].font = Font(color="0000FF", underline="single")
 
@@ -99,8 +105,8 @@ def save_to_excel(data1, sheet1, data2, sheet2, filename="gym_data.xlsx"):
 
     # Ensure correct column order
     column_order = ["name", "manufacturer", "price", "country", "image_url", "web_page"]
-    df1 = df1[column_order]
-    df2 = df2[column_order]
+    df1 = df1[column_order] if not df1.empty else pd.DataFrame(columns=column_order)
+    df2 = df2[column_order] if not df2.empty else pd.DataFrame(columns=column_order)
 
     # Replace None values with 'NA' for consistency
     df1.fillna("NA", inplace=True)
@@ -115,7 +121,7 @@ def save_to_excel(data1, sheet1, data2, sheet2, filename="gym_data.xlsx"):
     df2.to_excel(writer, sheet_name=sheet2, index=False)
 
     # Save the File
-    writer.close()
+    writer._save()  # Fixed deprecated warning for `.close()`
     print(f"✅ Data Saved to: {filename}")
 
     # Format Excel File to Fix Links
@@ -123,7 +129,7 @@ def save_to_excel(data1, sheet1, data2, sheet2, filename="gym_data.xlsx"):
 
 def safe_text(text):
     """Ensure text is safe for PDF encoding by removing unsupported characters."""
-    if pd.isna(text):  # Handle NaN values
+    if pd.isna(text):  
         return "NA"
     return str(text).encode("latin-1", "ignore").decode("latin-1")
 
@@ -155,12 +161,10 @@ def generate_pdf(excel_file="gym_data.xlsx", pdf_file="gym_report.pdf"):
     ))
 
     pdf.ln(20)
-    pdf.set_font("Arial", style="B", size=16)
-    pdf.cell(200, 10, safe_text("⬇️ Scroll Down for Full Product Listings"), ln=True, align="C")
 
     for sheet_name in xl.sheet_names:
         df = xl.parse(sheet_name)
-        df = df.replace({np.nan: "NA"})
+        df.replace({np.nan: "NA"}, inplace=True)
 
         pdf.add_page()
         pdf.set_font("Arial", style="B", size=18)
@@ -170,12 +174,10 @@ def generate_pdf(excel_file="gym_data.xlsx", pdf_file="gym_report.pdf"):
         for _, row in df.iterrows():
             pdf.set_font("Arial", style="B", size=12)
             pdf.cell(0, 10, safe_text(row["Product Name"]), ln=True)
-
             pdf.set_font("Arial", size=11)
             pdf.cell(0, 8, safe_text(f"💰 Price: {row['Price']}"), ln=True)
             pdf.cell(0, 8, safe_text(f"🏭 Manufacturer: {row['Manufacturer']}"), ln=True)
             pdf.cell(0, 8, safe_text(f"📍 Country: {row['Country']}"), ln=True)
-
             pdf.ln(10)
 
     pdf.output(pdf_file, "F")

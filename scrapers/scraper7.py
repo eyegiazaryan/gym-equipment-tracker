@@ -11,7 +11,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
 def scrape_gym7():
-    url = "https://titan.fitness/products/titan-series-power-rack-90-36?variant=47930285916437"
+    url = "https://titan.fitness/products/x-3-series-tall-squat-stand"
 
     chrome_options = Options()
     chrome_options.add_argument("--headless")  
@@ -51,7 +51,7 @@ def scrape_gym7():
                 logging.error("❌ Sale price not found either.")
 
         return {
-            "name": "Titan Series Power Rack 90\" x 36\"",
+            "name": "X-3 Series Tall Squat Stand",
             "price": price,
             "status": sale_status,
             "country": "China",

@@ -1,3 +1,4 @@
+import logging
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
@@ -7,11 +8,14 @@ from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager
 import time
 
+# Configure logging
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+
 def scrape_gym2():
     url = "https://titan.fitness/products/titan-series-power-rack-90-36?variant=47930285916437"
 
     chrome_options = Options()
-    chrome_options.add_argument("--headless")  
+    chrome_options.add_argument("--headless")
     chrome_options.add_argument("--disable-gpu")
     chrome_options.add_argument("--window-size=1920,1080")
 
@@ -19,30 +23,25 @@ def scrape_gym2():
     driver = webdriver.Chrome(service=service, options=chrome_options)
 
     try:
+        logging.info("Opening website: %s", url)
         driver.get(url)
-        time.sleep(5)  # Allow JavaScript to load
+        time.sleep(5)  # Allow JavaScript content to fully load
 
-        # Extract Regular Price
+        price = "Price not available"
+
         try:
-            regular_price_element = WebDriverWait(driver, 15).until(
-                EC.presence_of_element_located((By.XPATH, "//*[@id='c-priceMain-template--22327592452373__main']/div/div/div[2]/span[2]"))
+            # Using the provided full XPath
+            regular_price_element = WebDriverWait(driver, 20).until(
+                EC.presence_of_element_located(
+                    (By.XPATH, '//*[@id="c-priceMain-template--22357952495893__main"]/div/div/div[2]/span[2]')
+                )
             )
-            regular_price = regular_price_element.text.strip()
-        except:
-            print("❌ Regular price not found")
-            regular_price = "Not available"
+            price = regular_price_element.text.strip()
+            logging.info("✅ Regular Price found: %s", price)
 
-        # Extract Sale Price
-        try:
-            sale_price_element = WebDriverWait(driver, 15).until(
-                EC.presence_of_element_located((By.XPATH, "//*[@id='c-priceMain-template--22327592452373__main']/div/div/div[2]/span[4]"))
-            )
-            sale_price = sale_price_element.text.strip()
-        except:
-            sale_price = None  # If no sale price is available
-
-        # Set the current price (use sale price if available, otherwise use regular price)
-        price = sale_price if sale_price else regular_price
+        except Exception as e:
+            logging.error("❌ Regular price not found. Error: %s", e)
+            price = "Not available"
 
         return {
             "name": 'TITAN Series Power Rack 90" 36"',
@@ -56,7 +55,6 @@ def scrape_gym2():
     finally:
         driver.quit()
 
-# Run the scraper
 if __name__ == "__main__":
     product_data = scrape_gym2()
-    print(product_data)
+    logging.info("Scraped Data: %s", product_data)

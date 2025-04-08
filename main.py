@@ -15,6 +15,11 @@ from scrapers.scraper7 import scrape_gym7
 from scrapers.scraper8 import scrape_gym8
 from scrapers.scraper9 import scrape_gym9
 from scrapers.scraper10 import scrape_gym10
+from scrapers.scraper11 import scrape_gym11
+from scrapers.scraper12 import scrape_gym12
+from scrapers.scraper13 import scrape_gym13
+from scrapers.scraper14 import scrape_gym14
+from scrapers.scraper15 import scrape_gym15
 
 def main():
     print("🚀 Starting the Gym Scraper...\n")
@@ -22,12 +27,14 @@ def main():
     # **List of All Scrapers**
     scrapers = {
         "4x4 Squat Racks": [scrape_gym1, scrape_gym2, scrape_gym3, scrape_gym4, scrape_gym5],
-        "Squat Stands": [scrape_gym6, scrape_gym7, scrape_gym8, scrape_gym9, scrape_gym10]
+        "Squat Stands": [scrape_gym6, scrape_gym7, scrape_gym8, scrape_gym9, scrape_gym10],
+        "Leg Extensions": [scrape_gym11, scrape_gym12, scrape_gym13, scrape_gym14, scrape_gym15]
     }
 
     # **Initialize Lists for Data Storage**
     squat_racks = []
     squat_stands = []
+    leg_extensions = []
 
     # **Run Scrapers and Collect Data**
     for category, scraper_list in scrapers.items():
@@ -35,19 +42,21 @@ def main():
         for scraper in scraper_list:
             try:
                 data = scraper()
-                
+
                 # Ensure valid data is returned
                 if not data or not isinstance(data, dict):
                     print(f"⚠️ {scraper.__name__} returned invalid data. Skipping.")
                     continue
-                
+
                 print(f"✅ Successfully Scraped: {data.get('name', 'Unknown')} - {data.get('price', 'N/A')}")
 
                 # Append Data to the Correct List
                 if category == "4x4 Squat Racks":
                     squat_racks.append(data)
-                else:
+                elif category == "Squat Stands":
                     squat_stands.append(data)
+                elif category == "Leg Extensions":
+                    leg_extensions.append(data)
 
             except Exception as e:
                 print(f"❌ Error scraping {scraper.__name__}: {str(e)}")
@@ -55,7 +64,11 @@ def main():
 
     # **Save Data to Excel**
     print("\n📊 Saving Data to Excel...")
-    save_to_excel(squat_racks, "4x4 Squat Racks", squat_stands, "Squat Stands", "gym_data.xlsx")
+    save_to_excel_multi([
+        (squat_racks, "4x4 Squat Racks"),
+        (squat_stands, "Squat Stands"),
+        (leg_extensions, "Leg Extensions")
+    ], "gym_data.xlsx")
 
     # **Generate PDF Report**
     print("\n📄 Generating PDF Report...")
@@ -63,7 +76,10 @@ def main():
 
     print("\n✅ All Tasks Completed Successfully!")
 
-# **Supporting Functions**
+# -----------------------------------------------
+# 🔧 Supporting Functions
+# -----------------------------------------------
+
 def format_excel(filename="gym_data.xlsx"):
     """Format the Excel file for better readability and fix hyperlinks."""
     wb = load_workbook(filename)
@@ -95,36 +111,21 @@ def format_excel(filename="gym_data.xlsx"):
     wb.save(filename)
     print(f"✅ Excel File Formatted & Links Fixed: {filename}")
 
-def save_to_excel(data1, sheet1, data2, sheet2, filename="gym_data.xlsx"):
+def save_to_excel_multi(sheet_data_pairs, filename="gym_data.xlsx"):
     """Save scraped data to an Excel file with multiple sheets."""
     writer = pd.ExcelWriter(filename, engine="openpyxl")
-
-    # Convert data to Pandas DataFrame
-    df1 = pd.DataFrame(data1)
-    df2 = pd.DataFrame(data2)
-
-    # Ensure correct column order
     column_order = ["name", "manufacturer", "price", "country", "image_url", "web_page"]
-    df1 = df1[column_order] if not df1.empty else pd.DataFrame(columns=column_order)
-    df2 = df2[column_order] if not df2.empty else pd.DataFrame(columns=column_order)
+    pretty_names = ["Product Name", "Manufacturer", "Price", "Country", "Image URL", "Product Page"]
 
-    # Replace None values with 'NA' for consistency
-    df1.fillna("NA", inplace=True)
-    df2.fillna("NA", inplace=True)
+    for data, sheet in sheet_data_pairs:
+        df = pd.DataFrame(data)
+        df = df[column_order] if not df.empty else pd.DataFrame(columns=column_order)
+        df.fillna("NA", inplace=True)
+        df.columns = pretty_names
+        df.to_excel(writer, sheet_name=sheet, index=False)
 
-    # Rename Columns for Readability
-    df1.columns = ["Product Name", "Manufacturer", "Price", "Country", "Image URL", "Product Page"]
-    df2.columns = ["Product Name", "Manufacturer", "Price", "Country", "Image URL", "Product Page"]
-
-    # Write Data to Excel Sheets
-    df1.to_excel(writer, sheet_name=sheet1, index=False)
-    df2.to_excel(writer, sheet_name=sheet2, index=False)
-
-    # Save the File
-    writer._save()  # Fixed deprecated warning for `.close()`
+    writer._save()
     print(f"✅ Data Saved to: {filename}")
-
-    # Format Excel File to Fix Links
     format_excel(filename)
 
 def safe_text(text):
@@ -154,7 +155,7 @@ def generate_pdf(excel_file="gym_data.xlsx", pdf_file="gym_report.pdf"):
     pdf.set_font("Arial", size=14)
     pdf.multi_cell(0, 10, safe_text(
         "🔹 This report provides an up-to-date listing of gym equipment, "
-        "including squat racks and stands, along with pricing, manufacturer details, and product links.\n\n"
+        "including squat racks, stands, and leg extensions, along with pricing, manufacturer details, and product links.\n\n"
         "🔹 Data is collected from multiple leading gym equipment brands.\n\n"
         "🔹 Clickable product links are provided for quick access.\n\n"
         "📌 For the latest updates, please visit the respective manufacturer websites."

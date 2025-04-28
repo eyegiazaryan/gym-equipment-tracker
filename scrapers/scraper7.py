@@ -25,7 +25,7 @@ def scrape_gym7():
         try:
             price_element = WebDriverWait(driver, 15).until(
                 EC.presence_of_element_located(
-                    (By.XPATH, "//*[@id='c-priceMain-template--22378231267605__main']/div/div/div[1]/span[2]")
+                    (By.XPATH, "//*[@id='c-priceMain-template--22413180666133__main']/div/div/div[1]/span[2]")
                 )
             )
             price = price_element.text.strip()
